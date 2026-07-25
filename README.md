@@ -17,9 +17,6 @@ Cada capítulo documenta não apenas os comandos aplicados, mas o raciocínio po
 - [Capítulo 4 — OSPF](#capitulo-4)
 - [Capítulo 5 (Final) — Serviços IP: SSH, ACL, DHCP Relay e Verificação Prática](#capitulo-5)
 
-## Como adicionar as imagens
-
-As pastas em `imagens/capitulo-X/` já estão criadas e este README já referencia cada arquivo pelo **nome exato** dos seus screenshots originais. Basta colocar cada print na pasta do capítulo correspondente (sem renomear), commitar e dar push — o GitHub renderiza as imagens automaticamente.
 
 ```
 ccna-lab-enterprise-network/
@@ -47,16 +44,9 @@ Ao longo dos próximos capítulos, cada camada e protocolo será detalhado com s
 ### A topologia
 
 ```
-SRV1 -- ASW01 --\
-                  \
-PC0-Phone1-ASW02 ---+--- DSW01 ===\        /=== CSW01 ---\
-                  /       |    \  X  /    |       |        \
-PC1-Phone0-ASW03-/        |     \/  \    /        |         R1 -- ISP
-                          |     /\  /\   |         |        /
-                       DSW02 ===/    \===/     CSW02 ------/
 ```
 
-![Topologia completa no Cisco Packet Tracer](imagens/capitulo-0/TOPOLOGIA.png)
+![Topologia completa no Cisco Packet Tracer](imagens/TOPOLOGIA.png)
 *Topologia física completa montada no Packet Tracer.*
 
 A rede é dividida em três camadas funcionais:
@@ -110,7 +100,7 @@ A VLAN de gerência (99) é a nativa dos trunks e existe apenas para administra�
 
 Os enlaces ponto-a-ponto entre DSWs, CSWs e o roteador de borda usam blocos /30 dedicados, documentados integralmente na planilha de endereçamento (`/addressing/ip-plan.xlsx`). Cada link tem seu próprio par de IPs, nomeado pela convenção `Origem > Destino` (ex: `DSW1 > CSW1`), o que facilita tanto a auditoria da configuração quanto a leitura das tabelas de roteamento OSPF nos capítulos seguintes.
 
-![Planilha de endereçamento IP](imagens/capitulo-0/TOPOLOGIA_EXCEL.PNG)
+![Planilha de endereçamento IP](imagens/TOPOLOGIA_EXCEL.PNG)
 *Plano de endereçamento completo: links ponto-a-ponto, VLANs e Loopbacks.*
 
 ### O que vem a seguir
@@ -158,7 +148,7 @@ O que cada linha resolve:
 - **`no ip domain-lookup`**: evita que o switch tente resolver, via DNS, qualquer palavra digitada errada no prompt (comportamento padrão do IOS gera um travamento de alguns segundos tentando consultar um servidor DNS inexistente a cada erro de digitação).
 - **`service password-encryption`**: aplica um hash reversível simples (tipo 7) a todas as senhas em texto claro no `running-config` — não é forte o suficiente para senhas críticas (por isso `enable secret` já usa hash forte por padrão), mas evita exposição trivial ao "olhar por cima do ombro" de uma config impressa ou exportada.
 
-![Configuração inicial do DSW01](imagens/capitulo-1/CONFIGS-INICIAIS.PNG)
+![Configuração inicial do DSW01](imagens/CONFIGS-INICIAIS.PNG)
 *Hardening básico aplicado antes de qualquer configuração de VLAN.*
 
 Essa base é replicada (com o hostname correspondente) em todos os switches de acesso, distribuição e core antes de qualquer configuração específica de camada.
@@ -190,7 +180,7 @@ Pontos importantes dessa etapa:
 
 **Nota de boas práticas**: em uma rede de produção real, normalmente se usaria **VTP versão 3** ou mesmo **modo Transparent** com VLANs configuradas manualmente em cada switch, já que o VTP em versões 1/2 tem um histórico conhecido de risco (um switch com revision number mais alto, mesmo apagando VLANs, pode sobrescrever acidentalmente todo o domínio). Para fins deste laboratório e por simplicidade didática, optou-se pelo modelo VTP Server/Client tradicional.
 
-![VTP Server e criação das VLANs no DSW01](imagens/capitulo-1/VTP-SERVER.PNG)
+![VTP Server e criação das VLANs no DSW01](imagens/VTP-SERVER.PNG)
 *DSW01 configurado como VTP Server, criando as 4 VLANs do domínio CCNA.*
 
 ### 1.3 EtherChannel e Trunk entre os switches de distribuição
@@ -221,7 +211,7 @@ Detalhando cada comando:
 
 As mensagens subsequentes de **`LINEPROTO-5-UPDOWN`** alternando entre `down` e `up` nas interfaces físicas são o reflexo normal da negociação de LACP e da formação do Port-channel — as portas físicas oscilam brevemente enquanto o protocolo sincroniza os dois lados antes de estabilizar como membros ativos do Po1.
 
-![EtherChannel e trunk entre DSW01 e DSW02](imagens/capitulo-1/ETHERCHANNEL-TRUNK.PNG)
+![EtherChannel e trunk entre DSW01 e DSW02](imagens/ETHERCHANNEL-TRUNK.PNG)
 *Formação do Port-channel 1 (LACP) e configuração de trunk com VLAN nativa 99.*
 
 ### 1.4 Portas de acesso: dados e voz na mesma porta física
@@ -241,7 +231,7 @@ ASW02(config-if)#sw acc vlan 10
 
 Essa combinação permite que **dados e voz compartilhem a mesma porta física e o mesmo cabo**, mas trafeguem em VLANs completamente separadas — dados na VLAN 10 sem tag, voz na VLAN 20 com tag 802.1Q — sem exigir configuração de trunk manual nem qualquer intervenção do usuário final.
 
-![Porta de acesso com voice VLAN no ASW02](imagens/capitulo-1/INT-ACCESS.PNG)
+![Porta de acesso com voice VLAN no ASW02](imagens/INT-ACCESS.PNG)
 *Configuração da porta f0/1 do ASW02: VLAN 10 (dados) + VLAN 20 (voz).*
 
 ### Resumo do capítulo
@@ -294,7 +284,7 @@ DSW01(config-if)#ip add 10.0.0.21 255.255.255.252
 
 O mesmo padrão se repete em DSW02 e nos dois switches Core, cada um com suas próprias interfaces roteadas apontando para os vizinhos correspondentes.
 
-![Interfaces roteadas e Loopback do DSW01](imagens/capitulo-2/IP-ADD-DSW.PNG)
+![Interfaces roteadas e Loopback do DSW01](imagens/IP-ADD-DSW.PNG)
 *DSW01: `ip routing`, interfaces roteadas para CSW01/CSW02 e Loopback1.*
 
 ### 2.3 EtherChannel Layer 3 entre os switches Core
@@ -320,7 +310,7 @@ Alguns pontos que diferenciam esta configuração da do Capítulo 1:
 
 Essa agregação faz parte da mesma lógica de redundância física discutida no Capítulo 0: mesmo com os dois links entre CSW01 e CSW02 fisicamente separados, o OSPF (configurado no próximo capítulo) enxerga apenas uma interface lógica (Po1), simplificando a topologia de roteamento sem abrir mão da capacidade agregada e da tolerância à falha de um dos cabos.
 
-![EtherChannel L3 e interfaces roteadas do CSW01](imagens/capitulo-2/ETHERCHANNEL-L3-DSW-IP-ADD.PNG)
+![EtherChannel L3 e interfaces roteadas do CSW01](imagens/ETHERCHANNEL-L3-DSW-IP-ADD.PNG)
 *CSW01: `ip routing`, EtherChannel L3 (PAgP) para CSW02, interfaces para DSW01/DSW02 e Loopback1.*
 
 ### 2.4 Interfaces Loopback para gerência e identificação OSPF
@@ -364,7 +354,7 @@ As mensagens `%LINK-5-CHANGED` e `%LINEPROTO-5-UPDOWN` confirmam que ambas as in
 
 Com essas duas interfaces ativas e endereçadas, o R1 está pronto para formar adjacências OSPF `point-to-point` com CSW01 e CSW02 — exatamente como planejado nos capítulos anteriores desta documentação, permitindo o balanceamento ECMP da rota default entre os dois Core switches.
 
-![Interfaces do R1 para CSW01 e CSW02](imagens/capitulo-2/R1-IPS.PNG)
+![Interfaces do R1 para CSW01 e CSW02](imagens/R1-IPS.PNG)
 *R1: G0/0 → CSW01 (10.0.0.44/30) e G0/1 → CSW02 (10.0.0.48/30).*
 
 ### Resumo do capítulo
@@ -406,7 +396,7 @@ ASW01(config-if)#span bpduguard en
 
 Essa combinação é considerada boa prática padrão em todas as portas de acesso final da rede, e foi replicada em ASW01, ASW02 e ASW03.
 
-![PortFast e BPDU Guard no ASW01](imagens/capitulo-3/PORTFAST-BPDUGUARD.PNG)
+![PortFast e BPDU Guard no ASW01](imagens/PORTFAST-BPDUGUARD.PNG)
 *Proteções aplicadas na porta de acesso final f0/1 do ASW01.*
 
 ### 3.2 Rapid-PVST+ e prioridade de Root Bridge por VLAN
@@ -431,7 +421,7 @@ DSW01(config)#span vlan 20,99 priority 4096
 
 O resultado é que **nenhum dos dois switches de distribuição concentra todo o tráfego de Root Bridge** — cada um é primário para duas das quatro VLANs, e secundário (backup) para as outras duas, distribuindo carga e evitando um ponto único de concentração de tráfego em condições normais de operação.
 
-![Rapid-PVST e prioridade de Root por VLAN no DSW01](imagens/capitulo-3/PER-VLAN-SPANNING-TREE.PNG)
+![Rapid-PVST e prioridade de Root por VLAN no DSW01](imagensPER-VLAN-SPANNING-TREE.PNG)
 *Mudança para Rapid-PVST+ e ajuste de prioridade por grupo de VLANs (também mostra o `show standby brief` da seção 3.4).*
 
 ### 3.3 HSRP por VLAN: grupos, prioridade e preempt
@@ -471,7 +461,7 @@ O padrão de configuração confirma o mesmo balanceamento já definido no Spann
 
 Os identificadores de grupo HSRP (`standby 10`, `standby 30`, `standby 20`, `standby 40`) não seguem necessariamente o número da VLAN — são apenas identificadores locais ao link, únicos por VLAN/interface, e não precisam ser numericamente idênticos ao ID da VLAN (prática comum, mas não obrigatória).
 
-![Configuração dos grupos HSRP por VLAN no DSW01](imagens/capitulo-3/HRSP-GROUP.PNG)
+![Configuração dos grupos HSRP por VLAN no DSW01](imagens/HRSP-GROUP.PNG)
 *Grupos HSRP configurados para as VLANs 10, 50, 20 e 99, com prioridade e preempt.*
 
 ### 3.4 Verificação: resultado combinado de STP + HSRP
@@ -518,7 +508,7 @@ O próximo capítulo (4) aborda o OSPF: adjacências `point-to-point` entre dist
 
 Este capítulo documenta a configuração do OSPF no núcleo da rede — o protocolo responsável por rotear entre distribuição, core e a borda com a internet, amarrando tudo que foi construído nos capítulos anteriores (interfaces roteadas, EtherChannel L3, Loopbacks) em uma topologia funcional e redundante.
 
-![Configuração OSPF e adjacências no CSW01](imagens/capitulo-4/OSPF.PNG)
+![Configuração OSPF e adjacências no CSW01](imagens/OSPF.PNG)
 *CSW01: processo OSPF, redes anunciadas, tipo point-to-point e adjacências FULL.*
 
 ### 4.1 Processo OSPF e redes anunciadas
@@ -631,7 +621,7 @@ DSW01(config)#ip ssh version 2
 
 Uma pequena tentativa mal-sucedida (`% Invalid input detected at '^' marker`) aparece nos logs antes do `crypto key generate rsa` funcionar — reflexo de um erro de digitação comum, sem impacto na configuração final.
 
-![Configuração de SSH no DSW01](imagens/capitulo-5/SSH.PNG)
+![Configuração de SSH no DSW01](imagens/SSH.PNG)
 *Geração de chaves RSA, `login local`, `transport input ssh` e `ip ssh version 2`.*
 
 ### 5.2 DHCP Relay nas VLANs de usuário e voz
@@ -647,7 +637,7 @@ DSW01(config-if)#ip helper-address 10.5.0.10
 
 Isso converte os broadcasts DHCPDISCOVER recebidos em cada VLAN em unicast direcionado ao servidor (10.5.0.10), permitindo que hosts de VLANs diferentes daquela onde o servidor DHCP reside consigam obter endereço — mecanismo essencial já que, sem essa configuração, o broadcast do DHCP nunca atravessaria os limites da VLAN de origem. Essa mesma configuração deve ser espelhada no DSW02, já que qualquer um dos dois pode estar ativo (HSRP) para essas VLANs em um dado momento.
 
-![DHCP Relay (ip helper-address) no DSW01](imagens/capitulo-5/DHCP-RELAY.PNG)
+![DHCP Relay (ip helper-address) no DSW01](imagens/DHCP-RELAY.PNG)
 *Helper-address configurado nas SVIs das VLANs 10 e 20, apontando para o SRV1.*
 
 ### 5.3 Servidor DHCP dedicado (SRV1)
@@ -664,7 +654,7 @@ Os dois primeiros pools (VOIP e DATA) estão coerentes com o restante do laborat
 
 **Ponto de atenção para revisão**: o terceiro pool (`serverPool`) está sem **Default Gateway** definido (`0.0.0.0`) e com a faixa inicial em `10.5.0.0` (endereço de rede, não um host válido). Caso a intenção seja usar esse pool para distribuir IPs na própria VLAN de servidores (50), vale corrigir o gateway para `10.5.0.1` (VIP HSRP dessa VLAN) e ajustar o Start IP Address para um host válido (ex: `10.5.0.10`), seguindo o mesmo padrão dos demais pools.
 
-![Pools de DHCP configurados no SRV1](imagens/capitulo-5/DHCP.PNG)
+![Pools de DHCP configurados no SRV1](imagens/DHCP.PNG)
 *Serviço DHCP no SRV1: pools dedicados para VOIP (VLAN 20) e DATA (VLAN 10).*
 
 ### 5.4 ACL padrão restringindo o acesso de gerência
@@ -679,7 +669,7 @@ CSW01(config-line)#access-class 1 in
 
 Como é uma ACL padrão numerada (`access-list 1`), ela possui um **deny implícito** ao final — qualquer origem que não seja `10.1.0.15` é automaticamente bloqueada nas linhas VTY, mesmo sem uma linha `deny any` explícita. Para fins de auditoria (registrar tentativas de acesso bloqueadas nos logs), uma melhoria opcional seria adicionar `access-list 1 deny any log` explicitamente antes de aplicar a ACL — assim cada tentativa negada gera um registro visível, em vez de ser descartada silenciosamente.
 
-![ACL padrão de gerência no CSW01](imagens/capitulo-5/STANDARD-ACL.PNG)
+![ACL padrão de gerência no CSW01](imagens/STANDARD-ACL.PNG)
 *ACL 1 aplicada nas linhas VTY, permitindo somente o host 10.1.0.15.*
 
 ### 5.5 Verificação prática: do host até o switch, via SSH
@@ -719,7 +709,7 @@ Esse teste confirma, em sequência, várias camadas configuradas ao longo de tod
 3. **`ssh -l admin 10.0.0.2`** conecta com sucesso ao **DSW01, usando o IP de gerência da VLAN 99** (Capítulo 2) — validando simultaneamente o SSH (seção 5.1), a autenticação local (`username admin`) e, mais importante, que a ACL de gerência **permitiu** essa origem específica, exatamente como projetado no Capítulo anterior sobre segurança.
 4. A sessão SSH sobe até o modo privilegiado (`en`) e o modo de configuração global (`conf t`) sem qualquer obstáculo adicional, confirmando que toda a cadeia de autenticação (senha de linha → senha de enable) está funcional.
 
-![Verificação prática a partir do PC1](imagens/capitulo-5/ACESSO-SSH.PNG)
+![Verificação prática a partir do PC1](imagens/ACESSO-SSH.PNG)
 *PC1 (10.1.0.15): ping ao gateway e SSH bem-sucedido até o DSW01.*
 
 ### Encerramento da documentação
